@@ -13,7 +13,7 @@ class grpcConan(ConanFile):
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "Apache-2.0"
     exports = ["LICENSE.md"]
-    exports_sources = ["CMakeLists.txt"]
+    exports_sources = ["CMakeLists.txt","gRPCModule.cmake"]
     generators = "cmake"
     short_paths = True  # Otherwise some folders go out of the 260 chars path length scope rapidly (on windows)
 
@@ -55,7 +55,6 @@ class grpcConan(ConanFile):
         os.rename(extracted_dir, self._source_subfolder)
 
         cmake_path = os.path.join(self._source_subfolder, "CMakeLists.txt")
-
         # See #5
         tools.replace_in_file(cmake_path, "_gRPC_PROTOBUF_LIBRARIES", "CONAN_LIBS_PROTOBUF")
 
@@ -125,9 +124,19 @@ class grpcConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
+
         self.copy(pattern="LICENSE", dst="licenses")
         self.copy('*', dst='include', src='{}/include'.format(self._source_subfolder))
         self.copy('*.cmake', dst='lib', src='{}/lib'.format(self._build_subfolder), keep_path=True)
+        
+        self.copy("gRPCModule.cmake",dst="lib/cmake/grpc",src=".")
+        # make sure we get the grpc_generate_cpp from grpcModule.cmake
+        tools.replace_in_file(self.package_folder+'/lib/cmake/grpc/gRPCConfig.cmake', "# Targets",
+'''# Modules
+include(${CMAKE_CURRENT_LIST_DIR}/gRPCModule.cmake)
+
+# Targets''')
+
         self.copy("*.lib", dst="lib", src="", keep_path=False)
         self.copy("*.a", dst="lib", src="", keep_path=False)
         self.copy("*", dst="bin", src="bin")
