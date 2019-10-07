@@ -24,7 +24,7 @@ set(PROTOS helloworld.proto)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 #generate protobuf stuff
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${PROTOS})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTOS})
 #generate grpc stuff
 grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${PROTOS})
 
